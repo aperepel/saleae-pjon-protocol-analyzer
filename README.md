@@ -6,5 +6,14 @@
 ![Overview Screenshot](/assets/screenshot_overview.png)
 
 # Quickstart
-- Install the plugin TBD link to the support page with detailed instructions
+- Tell Logic to load the protocol analyzer plugin. Full details avilable in the Analyzer SDK docs PDF, but here's a quickie:
+ - Launch the Logic software.
+ - Select `Options->Preferences`
+ - Under `Developer`, click `Browse`. Navigate to the directory you downloaded the protocol binary to
+ - Restart Logic
 - In Logic, go to `Options -> Open Capture` and load the example file from the `assets` folder of this repository. This is a 'hello world' of PJON sending a byte every second.
+- In `Analyzers` click `+ -> Show More -> PJON`
+
+# Compiling
+Follow standard Saleae documentation, no surprises (built with 1.1.32) http://support.saleae.com/hc/en-us/articles/201104644-Protocol-Analyzer-SDK
+- OSX http://support.saleae.com/hc/en-us/articles/208019393-OSX-Analyzer-SDK-Xcode-setup
