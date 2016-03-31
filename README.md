@@ -5,4 +5,6 @@
 # Screenshot (click through to RAW for a full-size)
 ![Overview Screenshot](/assets/screenshot_overview.png)
 
-
+# Quickstart
+- Install the plugin TBD link to the support page with detailed instructions
+- In Logic, go to `Options -> Open Capture` and load the example file from the `assets` folder of this repository. This is a 'hello world' of PJON sending a byte every second.
