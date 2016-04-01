@@ -31,7 +31,7 @@ protected:  //vars
 	PJONAnalyzer* mAnalyzer;
     
 private:
-    char* GetAckNackString(U64 frame_index);
+    void GetAckNackString(char* buf, U64 frame_index);
     
 };
 
