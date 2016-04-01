@@ -34,7 +34,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         }
             
         case PJONFrameType::Data: {
-            char* str = PJONPacketState::asDisplayString(frame.mFlags);
+            char* str = GetAckNackString(frame_index);
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
             AddResultString("Data ", str, " ", number_str);
             break;
@@ -47,6 +47,37 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         }
     }
 
+}
+
+/*
+    ACK, NACK or display the value otherwise
+ */
+char* PJONAnalyzerResults::GetAckNackString(U64 frame_index)
+{
+    Frame frame = GetFrame( frame_index );
+    
+    // special treatment for ACK/NACK
+    char* str;
+    if (frame.mFlags & PJONPacketState::FLAG_ACK_NACK) {
+        U64 val = frame.mData1;
+        switch (val) {
+            case PJONPacketState::PJON_ACK_VALUE:
+                str = (char *) "ACK";
+                break;
+                
+            case PJONPacketState::PJON_NACK_VALUE:
+                str = (char *) "NACK";
+                break;
+                
+            default:
+                str = PJONPacketState::asDisplayString(frame.mFlags);
+                break;
+        }
+    } else {
+        str = PJONPacketState::asDisplayString(frame.mFlags);
+    }
+    
+    return str;
 }
 
 void PJONAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
@@ -96,7 +127,7 @@ void PJONAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
         }
             
         case PJONFrameType::Data: {
-            char* str = PJONPacketState::asDisplayString(frame.mFlags);
+            char* str = GetAckNackString(frame_index);
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
             AddTabularText("Data ", str, " ", number_str);
             break;

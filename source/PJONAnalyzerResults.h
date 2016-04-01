@@ -30,6 +30,9 @@ protected:  //vars
 	PJONAnalyzerSettings* mSettings;
 	PJONAnalyzer* mAnalyzer;
     
+private:
+    char* GetAckNackString(U64 frame_index);
+    
 };
 
 #endif //PJON_ANALYZER_RESULTS

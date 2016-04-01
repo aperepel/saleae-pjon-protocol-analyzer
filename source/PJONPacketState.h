@@ -22,11 +22,15 @@ public:
     short asDisplayFlag();
 
     // vars/constants
-    short FLAG_DEVICE_ID = (1 << 0);
-    short FLAG_LENGTH    = (1 << 1);
-    short FLAG_PAYLOAD   = (1 << 2);
-    short FLAG_CHECKSUM  = (1 << 3);
-    short FLAG_ACK_NACK  = (1 << 4);
+    static const short FLAG_DEVICE_ID = (1 << 0);
+    static const short FLAG_LENGTH    = (1 << 1);
+    static const short FLAG_PAYLOAD   = (1 << 2);
+    static const short FLAG_CHECKSUM  = (1 << 3);
+    static const short FLAG_ACK_NACK  = (1 << 4);
+    
+    // from PJON.h
+    static const short PJON_ACK_VALUE  = 0x06;
+    static const short PJON_NACK_VALUE = 0x15; // 21 decimal
     
 private:
     
@@ -41,6 +45,7 @@ private:
         Packet::AckNack
     };
     
+    // vars/constants
     short current_index = 0;
 };
 
