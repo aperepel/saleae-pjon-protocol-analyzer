@@ -137,8 +137,9 @@ void PJONAnalyzer::WorkerThread()
                     current_state = PJONState::DataExpected;
                 } else {
                     // unexpected 1
-                    mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::ErrorX, mSettings->mInputChannel);
-                    mPJON->Advance(samples_per_bit); // TODO advance with tolerance check
+                    U64 errorMarkerPos = sync_sample_start + (mPJON->GetSampleNumber() - sync_sample_start) / 2;
+                    mResults->AddMarker(errorMarkerPos, AnalyzerResults::ErrorX, mSettings->mInputChannel);
+//                    mPJON->Advance(samples_per_bit); // TODO advance with tolerance check
                     
                     Frame f;
                     // TODO still display the packet type?
@@ -150,7 +151,8 @@ void PJONAnalyzer::WorkerThread()
                     
                     packet_state.reset();
                     current_state = PJONState::Unknown;
-                    
+
+                    mPJON->Advance(1);
                     mResults->CancelPacketAndStartNewPacket();
                 }
                 break;
