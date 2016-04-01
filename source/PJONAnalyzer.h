@@ -29,7 +29,7 @@ protected:
     //vars
 	std::auto_ptr< PJONAnalyzerSettings > mSettings;
 	std::auto_ptr< PJONAnalyzerResults > mResults;
-	AnalyzerChannelData* mPJON;
+    std::auto_ptr< AnalyzerChannelData > mPJON;
 
 	PJONSimulationDataGenerator mSimulationDataGenerator;
 	bool mSimulationInitialized;

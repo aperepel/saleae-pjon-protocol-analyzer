@@ -31,6 +31,7 @@ void PJONAnalyzer::SetupResults()
     mResults.reset( new PJONAnalyzerResults( this, mSettings.get() ) );
     SetAnalyzerResults( mResults.get() );
     mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
+    mPJON.reset(GetAnalyzerChannelData(mSettings->mInputChannel));
 }
 
 void PJONAnalyzer::WorkerThread()
@@ -38,7 +39,6 @@ void PJONAnalyzer::WorkerThread()
 	
 
 	mSampleRateHz = GetSampleRate();
-    mPJON = GetAnalyzerChannelData( mSettings->mInputChannel );
     ClockGenerator clock_generator;
     clock_generator.Init( mSettings->mBitRate, mSampleRateHz );
     mPJON->TrackMinimumPulseWidth();
@@ -231,6 +231,10 @@ void PJONAnalyzer::WorkerThread()
                             // keep consuming the multi-byte payload
                             current_state = PJONState::SyncExpected;
                         }
+                    } else if (PJONPacketState::Packet::Checksum == packet_state.current()) {
+                        packet_state.next();
+                        // correct some protocol jitter found under load testing, don't seek & guess
+                        current_state = PJONState::SyncExpected;
                     } else {
                         // this is not a payload sequence, normal transition
                         packet_state.next();
