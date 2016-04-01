@@ -6,7 +6,7 @@
 ![Overview Screenshot](/assets/screenshot_overview.png)
 
 # Quickstart
-- Tell Logic to load the protocol analyzer plugin. Full details avilable in the Analyzer SDK docs PDF, but here's a quickie:
+- Tell Logic to load the protocol analyzer plugin. Full details available in the Analyzer SDK docs PDF, but here's a quickie:
  - Launch the Logic software.
  - Select `Options->Preferences`
  - Under `Developer`, click `Browse`. Navigate to the directory you downloaded the protocol binary to
