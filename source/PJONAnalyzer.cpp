@@ -139,7 +139,6 @@ void PJONAnalyzer::WorkerThread()
                     // unexpected 1
                     mResults->AddMarker(center, AnalyzerResults::ErrorX, mSettings->mInputChannel);
                     mPJON->Advance(samples_per_bit); // TODO advance with tolerance check
-                    current_state = PJONState::Unknown;
                     
                     Frame f;
                     // TODO still display the packet type?
@@ -148,6 +147,7 @@ void PJONAnalyzer::WorkerThread()
                     f.mEndingSampleInclusive = mPJON->GetSampleNumber();
                     mResults->AddFrame(f);
                     
+                    packet_state.reset();
                     current_state = PJONState::Unknown;
                     
                     mResults->CancelPacketAndStartNewPacket();
