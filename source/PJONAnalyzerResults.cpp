@@ -61,8 +61,8 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
 PJONAnalyzerResults::UILabel PJONAnalyzerResults::GetAckNackLabels(U64 frame_index)
 {
     Frame frame = GetFrame( frame_index );
-
     UILabel label;
+    char *frameTypeStr = PJONPacketState::asDisplayString(frame.mFlags);
 
     // special treatment for ACK/NACK
     if (frame.mFlags & PJONPacketState::FLAG_ACK_NACK) {
@@ -83,13 +83,13 @@ PJONAnalyzerResults::UILabel PJONAnalyzerResults::GetAckNackLabels(U64 frame_ind
             default:
                 label.tiny = "W";
                 label.medium = "WARN";
-                label.full = "WARNING non-protocol " + std::string(PJONPacketState::asDisplayString(frame.mFlags));
+                label.full = "WARNING non-protocol " + std::string(frameTypeStr);
                 break;
         }
       } else {
         label.tiny = "d";
-        label.medium = "Data"; // TODO display actual data instead?
-        label.full = PJONPacketState::asDisplayString(frame.mFlags);
+        label.medium = frameTypeStr;
+        label.full = frameTypeStr;
     }
 
     return label;
