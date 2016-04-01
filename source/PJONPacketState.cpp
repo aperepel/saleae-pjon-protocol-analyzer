@@ -46,23 +46,23 @@ char* PJONPacketState::asDisplayString(short flag) {
     Packet packet = p.current();
     switch (packet) {
         case PJONPacketState::Packet::DeviceId:
-            return (char*) "(Device ID)";
+            return (char*) "Device ID";
             break;
             
         case PJONPacketState::Packet::Length:
-            return (char*) "(Length)";
+            return (char*) "Length";
             break;
             
         case PJONPacketState::Packet::Payload:
-            return (char*) "(Payload)";
+            return (char*) "Payload";
             break;
             
         case PJONPacketState::Packet::Checksum:
-            return (char*) "(Checksum)";
+            return (char*) "Checksum";
             break;
             
         case PJONPacketState::Packet::AckNack:
-            return (char*) "(AckNack)";
+            return (char*) "AckNack";
             break;
             
         default:

@@ -27,7 +27,6 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
     char buf[50];
 	char number_str[128];
     switch (frame.mType) {
-        // TODO handle error frames too
         case PJONFrameType::Sync: {
             char* str = PJONPacketState::asDisplayString(frame.mFlags);
             AddResultString("s");
@@ -40,7 +39,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
             GetAckNackString(buf, frame_index);
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
             AddResultString("d");
-            AddResultString("Data");
+            AddResultString(PJONPacketState::asDisplayString(frame.mFlags));
             AddResultString("Data ", buf, " ", number_str);
             break;
         }
