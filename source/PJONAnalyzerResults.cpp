@@ -45,6 +45,11 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
             break;
         }
             
+        case PJONFrameType::Error: {
+            AddResultString("e");
+            AddResultString("Error");
+        }
+            
         default: {
            	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
             AddResultString( number_str );
@@ -78,7 +83,7 @@ void PJONAnalyzerResults::GetAckNackString(char* str, U64 frame_index)
                 strcat(str, PJONPacketState::asDisplayString(frame.mFlags));
                 break;
         }
-    } else {
+      } else {
         strcpy(str, PJONPacketState::asDisplayString(frame.mFlags));
     }
 }
@@ -137,9 +142,14 @@ void PJONAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
             break;
         }
             
+        case PJONFrameType::Error: {
+            AddTabularText("Error");
+            break;
+        }
+            
         default: {
            	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-            AddResultString( number_str );
+            AddTabularText(number_str );
             break;
         }
     }

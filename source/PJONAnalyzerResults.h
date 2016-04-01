@@ -5,7 +5,8 @@
 
 enum PJONFrameType {
     Sync,
-    Data
+    Data,
+    Error
 };
 
 class PJONAnalyzer;

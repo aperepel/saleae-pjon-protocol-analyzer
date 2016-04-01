@@ -137,7 +137,7 @@ void PJONAnalyzer::WorkerThread()
                     current_state = PJONState::DataExpected;
                 } else {
                     // unexpected 1
-                    mResults->AddMarker(center, AnalyzerResults::ErrorX, mSettings->mInputChannel);
+                    mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::ErrorX, mSettings->mInputChannel);
                     mPJON->Advance(samples_per_bit); // TODO advance with tolerance check
                     
                     Frame f;
@@ -145,6 +145,7 @@ void PJONAnalyzer::WorkerThread()
                     f.mFlags = DISPLAY_AS_ERROR_FLAG;
                     f.mStartingSampleInclusive = sync_sample_start;
                     f.mEndingSampleInclusive = mPJON->GetSampleNumber();
+                    f.mType = PJONFrameType::Error;
                     mResults->AddFrame(f);
                     
                     packet_state.reset();
