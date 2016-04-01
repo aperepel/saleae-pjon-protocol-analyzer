@@ -6,8 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-#define BROADCAST_ADDRESS 124
-
 PJONAnalyzerResults::PJONAnalyzerResults( PJONAnalyzer* analyzer, PJONAnalyzerSettings* settings )
 :	AnalyzerResults(),
 	mSettings( settings ),
@@ -24,7 +22,6 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
 	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
  
-    char buf[50];
 	char number_str[128];
     switch (frame.mType) {
         case PJONFrameType::Sync: {
@@ -36,11 +33,11 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         }
             
         case PJONFrameType::Data: {
-            GetAckNackString(buf, frame_index);
+            UILabel label = GetAckNackLabels(frame_index);
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-            AddResultString("d");
-            AddResultString(PJONPacketState::asDisplayString(frame.mFlags));
-            AddResultString("Data ", buf, " ", number_str);
+            AddResultString(label.tiny.c_str());
+            AddResultString(label.medium.c_str());
+            AddResultString("Data ", label.full.c_str(), " ", number_str);
             break;
         }
             
@@ -61,30 +58,41 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
 /*
     ACK, NACK or display the value otherwise
  */
-void PJONAnalyzerResults::GetAckNackString(char* str, U64 frame_index)
+PJONAnalyzerResults::UILabel PJONAnalyzerResults::GetAckNackLabels(U64 frame_index)
 {
     Frame frame = GetFrame( frame_index );
-    
+
+    UILabel label;
+
     // special treatment for ACK/NACK
     if (frame.mFlags & PJONPacketState::FLAG_ACK_NACK) {
         U64 val = frame.mData1;
         switch (val) {
             case PJONPacketState::PJON_ACK_VALUE:
-                strcpy(str, "ACK");
+                label.tiny = "A";
+                label.medium = "ACK";
+                label.full = "ACK"; // will be concatenated next
                 break;
                 
             case PJONPacketState::PJON_NACK_VALUE:
-                strcpy(str, "NACK");
+                label.tiny = "N";
+                label.medium = "NACK";
+                label.full = "NACK"; // will be concatenated next
                 break;
-                
+
             default:
-                strcpy(str, " WARNING protocol error ");
-                strcat(str, PJONPacketState::asDisplayString(frame.mFlags));
+                label.tiny = "W";
+                label.medium = "WARN";
+                label.full = "WARNING non-protocol " + std::string(PJONPacketState::asDisplayString(frame.mFlags));
                 break;
         }
       } else {
-        strcpy(str, PJONPacketState::asDisplayString(frame.mFlags));
+        label.tiny = "d";
+        label.medium = "Data"; // TODO display actual data instead?
+        label.full = PJONPacketState::asDisplayString(frame.mFlags);
     }
+
+    return label;
 }
 
 void PJONAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
@@ -135,9 +143,10 @@ void PJONAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
         }
             
         case PJONFrameType::Data: {
-            GetAckNackString(buf, frame_index);
+            UILabel label = GetAckNackLabels(frame_index);
+
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-            AddTabularText("Data ", buf, " ", number_str);
+            AddTabularText("Data ", label.full.c_str(), " ", number_str);
             break;
         }
             

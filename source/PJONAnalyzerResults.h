@@ -32,8 +32,13 @@ protected:  //vars
 	PJONAnalyzer* mAnalyzer;
     
 private:
-    void GetAckNackString(char* buf, U64 frame_index);
+	struct UILabel {
+		std::string tiny;
+		std::string medium;
+		std::string full;
+	};
     
+    UILabel GetAckNackLabels(U64 frame_index);
 };
 
 #endif //PJON_ANALYZER_RESULTS
