@@ -57,9 +57,9 @@ void PJONAnalyzer::WorkerThread()
     
     U16 bits_read_count = 0;
     // start and end boundaries for reading a byte (used by markers)
-    U64 data_sample_start = -1;
-    U64 data_sample_end = -1;
-    U64 sync_sample_start = -1;
+    U64 data_sample_start = 0;
+    U64 data_sample_end = 0;
+    U64 sync_sample_start = 0;
     U64 data = 0xFF;
     DataBuilder data_builder;
     
