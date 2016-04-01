@@ -75,23 +75,23 @@ short PJONPacketState::asDisplayFlag() {
     Packet current = this->current();
     switch (current) {
         case PJONPacketState::Packet::DeviceId:
-            return DEVICE_ID_FLAG;
+            return FLAG_DEVICE_ID;
             break;
 
         case PJONPacketState::Packet::Length:
-            return LENGTH_FLAG;
+            return FLAG_LENGTH;
             break;
 
         case PJONPacketState::Packet::Payload:
-            return PAYLOAD_FLAG;
+            return FLAG_PAYLOAD;
             break;
 
         case PJONPacketState::Packet::Checksum:
-            return CHECKSUM_FLAG;
+            return FLAG_CHECKSUM;
             break;
             
         case PJONPacketState::Packet::AckNack:
-            return ACK_NACK_FLAG;
+            return FLAG_ACK_NACK;
             break;
 
         default:
