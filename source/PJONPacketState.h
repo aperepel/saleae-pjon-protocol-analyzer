@@ -31,6 +31,9 @@ public:
     // from PJON.h
     static const short PJON_ACK_VALUE  = 0x06;
     static const short PJON_NACK_VALUE = 0x15; // 21 decimal
+
+    // subtract this number from the wire-level payload packet for actual data length
+    static const short PJON_PACKET_OVERHEAD = 3;
     
 private:
     

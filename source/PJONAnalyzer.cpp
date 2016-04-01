@@ -61,6 +61,7 @@ void PJONAnalyzer::WorkerThread()
     U64 data_sample_end = 0;
     U64 sync_sample_start = 0;
     U64 data = 0xFF;
+    short payload_bytes_to_come = 1;
     DataBuilder data_builder;
     
     if ( mPJON->GetBitState() == BIT_LOW ) {
@@ -169,7 +170,7 @@ void PJONAnalyzer::WorkerThread()
                 bits_read_count++;
 
                 mResults->AddMarker(mPJON->GetSampleNumber() + half_samples_per_bit, AnalyzerResults::Dot, mSettings->mInputChannel);
-                // TODO handle mult-byte payloads, add the payload size tracker
+
                 if (mPJON->WouldAdvancingCauseTransition(samples_per_bit + tolerance_samples)) {
                     mPJON->AdvanceToNextEdge();
                 } else {
@@ -187,19 +188,55 @@ void PJONAnalyzer::WorkerThread()
                     f.mData1 = data;
                     mResults->AddFrame(f);
 
-                    // TODO remove or put in the DEBUG ifdef
-                    //fprintf(stderr, "Data: %llu\n", data);
                     bits_read_count = 0;
                     
                     mResults->CommitPacketAndStartNewPacket();
-                    
-                    if (packet_state.current() == PJONPacketState::Packet::AckNack) {
-                        mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::Stop, mSettings->mInputChannel);
+
+                    switch (packet_state.current()) {
+                        case PJONPacketState::Packet::Length: {
+                            payload_bytes_to_come = data - PJONPacketState::PJON_PACKET_OVERHEAD;
+                            break;
+                        }
+
+                        case PJONPacketState::Packet::Payload: {
+                            payload_bytes_to_come--;
+                            break;
+                        }
+
+                        /*
+                         // a debugging breakpoint, nice place to investigate a 'delayed' ACK
+                         case PJONPacketState::Packet::Checksum: {
+                            // TODO remove this case statement, just here for debugging
+                            bits_read_count;
+                            break;
+                        }*/
+
+                        case PJONPacketState::Packet::AckNack: {
+                            mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::Stop, mSettings->mInputChannel);
+                            break;
+                        }
+
+                        default: {
+                            // just continue
+                        }
                     }
 
-                    PJONPacketState::Packet p = packet_state.next();
-                    //fprintf(stderr, "Next step - %d\n", p);
-                    current_state = PJONState::Unknown;
+                    if (PJONPacketState::Packet::Payload == packet_state.current()) {
+                        if (payload_bytes_to_come == 0) {
+                            // we have consumed all of the payload, transition and reset state
+                            packet_state.next();
+                            payload_bytes_to_come = 1;
+                            current_state = PJONState::Unknown;
+                        } else {
+                            // keep consuming the multi-byte payload
+                            current_state = PJONState::SyncExpected;
+                        }
+                    } else {
+                        // this is not a payload sequence, normal transition
+                        packet_state.next();
+                        current_state = PJONState::Unknown;
+                    }
+
                 } else {
                     current_state = PJONState::DataExpected;
                 }
@@ -207,6 +244,7 @@ void PJONAnalyzer::WorkerThread()
 
             }
             default: {
+                // should never fall through here, but let's future-proof
                 current_state = PJONState::Unknown;
                 mPJON->AdvanceToNextEdge();
             }
@@ -216,7 +254,6 @@ void PJONAnalyzer::WorkerThread()
         ReportProgress(mPJON->GetSampleNumber());
         
         CheckIfThreadShouldExit();
-        
     }
 }
 
