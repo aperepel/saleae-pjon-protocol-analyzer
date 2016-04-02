@@ -86,8 +86,9 @@ void PJONAnalyzer::WorkerThread()
 
                     // TODO revisit this number
                     if (bitCount < 16) {
-                        mResults->AddMarker(mPJON->GetSampleNumber() + half_samples_per_bit, AnalyzerResults::Dot, mSettings->mInputChannel);
-                        mPJON->Advance(samples_per_bit + tolerance_samples);
+//                        mResults->AddMarker(mPJON->GetSampleNumber() + half_samples_per_bit, AnalyzerResults::Dot, mSettings->mInputChannel);
+                        //mPJON->Advance(samples_per_bit + tolerance_samples);
+                        mPJON->Advance(samples_per_bit);
                     } else {
                         mPJON->AdvanceToNextEdge();
                     }
@@ -184,13 +185,19 @@ void PJONAnalyzer::WorkerThread()
                 data_builder.AddBit(bit);
                 bits_read_count++;
 
-                mResults->AddMarker(mPJON->GetSampleNumber() + half_samples_per_bit, AnalyzerResults::Dot, mSettings->mInputChannel);
-
-                if (mPJON->WouldAdvancingCauseTransition(samples_per_bit + tolerance_samples)) {
+                // bit_width * (bit_acceptance / bit_width)
+                // TODO recalculate based on user-provided settings
+                if (mPJON->WouldAdvancingCauseTransition(samples_per_bit * 1.8)) {
+//                if (mPJON->WouldAdvancingCauseTransition(samples_per_bit + tolerance_samples)) {
+                    U64 next_edge = mPJON->GetSampleOfNextEdge();
+                    U64 center = mPJON->GetSampleNumber() + (next_edge - mPJON->GetSampleNumber()) / 2;
+                    mResults->AddMarker(center, AnalyzerResults::Dot, mSettings->mInputChannel);
                     mPJON->AdvanceToNextEdge();
                 } else {
+                    mResults->AddMarker(mPJON->GetSampleNumber() + half_samples_per_bit, AnalyzerResults::Dot, mSettings->mInputChannel);
+                    mPJON->Advance(samples_per_bit);
                     // avoid a 'center' point drift for extended transactions, add tolerance only every other time
-                    mPJON->Advance(samples_per_bit + ((bits_read_count % 2) ? tolerance_samples : 0));
+                    //mPJON->Advance(samples_per_bit + ((bits_read_count % 2) ? tolerance_samples : 0));
                 }
 
                 if (bits_read_count == 8) {
