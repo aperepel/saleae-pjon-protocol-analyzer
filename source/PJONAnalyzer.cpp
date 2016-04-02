@@ -101,10 +101,14 @@ void PJONAnalyzer::WorkerThread()
                 if (mPJON->GetBitState() == BIT_LOW) {
                     // advance a little, seeking for a rising sync, but no more than a bit width
                     U64 rising_edge = mPJON->GetSampleOfNextEdge();
-                    // TODO calc the multiplier based on protocol settings (read delay, acceptance, etc)
-                    if ((rising_edge - start) < samples_per_bit * 1.1) {
+                    // seek ahead only for spacer + zero bit width, otherwise timeout
+                    if ((rising_edge - start) < (samples_per_bit + samples_per_bit * spacer_ratio)) {
                         mPJON->AdvanceToNextEdge();
                         start = mPJON->GetSampleNumber();
+                    } else {
+                        mPJON->Advance(half_samples_per_bit);
+//                        mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::X, mSettings->mInputChannel);
+                        mPJON->Advance(half_samples_per_bit);
                     }
                 }
 
@@ -224,6 +228,7 @@ void PJONAnalyzer::WorkerThread()
 
                         case PJONPacketState::Packet::AckNack: {
                             mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::Stop, mSettings->mInputChannel);
+                            mPJON->AdvanceToNextEdge();
                             break;
                         }
 
