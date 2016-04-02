@@ -97,12 +97,23 @@ void PJONAnalyzer::WorkerThread()
             }
             case PJONState::SyncExpected: {
                 U64 start = mPJON->GetSampleNumber();
-                sync_sample_start = start; // save for later, still need a trailing zero
+
+                if (mPJON->GetBitState() == BIT_LOW) {
+                    // advance a little, seeking for a rising sync, but no more than a bit width
+                    U64 rising_edge = mPJON->GetSampleOfNextEdge();
+                    // TODO calc the multiplier based on protocol settings (read delay, acceptance, etc)
+                    if ((rising_edge - start) < samples_per_bit * 1.1) {
+                        mPJON->AdvanceToNextEdge();
+                        start = mPJON->GetSampleNumber();
+                    }
+                }
+
+                // save for later, still need a trailing zero
+                sync_sample_start = start;
                 U64 end = mPJON->GetSampleOfNextEdge();
 
-                BitState bit = mPJON->GetBitState();
 
-                if (bit == BIT_HIGH) {
+                if (mPJON->GetBitState() == BIT_HIGH) {
                     U64 center = start + (end - start) / 2;
                     mResults->AddMarker(center, AnalyzerResults::Start, mSettings->mInputChannel);
                 }
