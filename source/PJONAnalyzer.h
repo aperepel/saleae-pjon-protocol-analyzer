@@ -24,12 +24,10 @@ public:
 	U64 SamplesToMicros(U64 samples) { return (samples * 1000000) / mSampleRateHz; }
 
 protected:
-    void TransitionToNextPacketState();
-    
     //vars
 	std::auto_ptr< PJONAnalyzerSettings > mSettings;
 	std::auto_ptr< PJONAnalyzerResults > mResults;
-    std::auto_ptr< AnalyzerChannelData > mPJON;
+    AnalyzerChannelData* mPJON;
 
 	PJONSimulationDataGenerator mSimulationDataGenerator;
 	bool mSimulationInitialized;
