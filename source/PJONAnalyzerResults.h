@@ -4,9 +4,9 @@
 #include <AnalyzerResults.h>
 
 enum PJONFrameType {
-    Sync,
-    Data,
-    Error
+    Sync = 1,
+    Data = 2,
+    Error = -1
 };
 
 class PJONAnalyzer;

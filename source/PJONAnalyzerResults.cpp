@@ -24,7 +24,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
  
 	char number_str[128];
     switch (frame.mType) {
-        case PJONFrameType::Sync: {
+        case Sync: {
             char* str = PJONPacketState::asDisplayString(frame.mFlags);
             AddResultString("s");
             AddResultString("Sync");
@@ -32,7 +32,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
             break;
         }
             
-        case PJONFrameType::Data: {
+        case Data: {
             UILabel label = GetAckNackLabels(frame_index);
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
             AddResultString(label.tiny.c_str());
@@ -41,7 +41,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
             break;
         }
             
-        case PJONFrameType::Error: {
+        case Error: {
             AddResultString("e");
             AddResultString("Error");
         }
@@ -136,13 +136,13 @@ void PJONAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
    	char number_str[128];
 
     switch (frame.mType) {
-        case PJONFrameType::Sync: {
+        case Sync: {
             char* str = PJONPacketState::asDisplayString(frame.mFlags);
             AddTabularText("Sync ", str);
             break;
         }
             
-        case PJONFrameType::Data: {
+        case Data: {
             UILabel label = GetAckNackLabels(frame_index);
 
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
@@ -150,7 +150,7 @@ void PJONAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
             break;
         }
             
-        case PJONFrameType::Error: {
+        case Error: {
             AddTabularText("Error");
             break;
         }

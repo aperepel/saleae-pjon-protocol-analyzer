@@ -1,14 +1,14 @@
 #include "PJONAnalyzer.h"
-#include "PJONAnalyzerSettings.h"
 #include "PJONPacketState.h"
+#include "PJONAnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
 #include <AnalyzerHelpers.h>
 
-enum class PJONState {
-    SyncExpected,
-    ZeroPadExpected,
-    DataExpected,
-    Unknown
+enum PJONState {
+    SyncExpected = 1,
+    ZeroPadExpected = 2,
+    DataExpected = 3,
+    UnknownState = -1
 };
 
 #pragma clang diagnostic push
@@ -51,7 +51,7 @@ void PJONAnalyzer::WorkerThread()
     double spacer_ratio = (double) mSettings->mBitSpacer / mSettings->mBitWidth;
 
 
-    PJONState current_state = PJONState::Unknown;
+    PJONState current_state = UnknownState;
 
     PJONPacketState packet_state;
 
@@ -72,12 +72,12 @@ void PJONAnalyzer::WorkerThread()
     {
         //fprintf(stderr, "raw - %s\n", PJONPacketState::asDisplayString(packet_state.asDisplayFlag()));
         switch (current_state) {
-            case PJONState::Unknown: {
+            case UnknownState: {
 
                 if (mPJON->WouldAdvancingCauseTransition(samples_per_bit + tolerance_samples)) {
-                    current_state = PJONState::DataExpected;
+                    current_state = DataExpected;
                 } else if (mPJON->WouldAdvancingCauseTransition(samples_per_bit * spacer_ratio + tolerance_samples)) {
-                    current_state = PJONState::SyncExpected;
+                    current_state = SyncExpected;
                 } else {
                     U64 next = mPJON->GetSampleOfNextEdge();
                     U64 current = mPJON->GetSampleNumber();
@@ -96,7 +96,7 @@ void PJONAnalyzer::WorkerThread()
 
                 break;
             }
-            case PJONState::SyncExpected: {
+            case SyncExpected: {
                 U64 start = mPJON->GetSampleNumber();
 
                 if (mPJON->GetBitState() == BIT_LOW) {
@@ -124,11 +124,11 @@ void PJONAnalyzer::WorkerThread()
                 }
 
                 mPJON->AdvanceToAbsPosition(end);
-                current_state = PJONState::ZeroPadExpected;
+                current_state = ZeroPadExpected;
 
                 break;
             }
-            case PJONState::ZeroPadExpected: {
+            case ZeroPadExpected: {
                 BitState bit = mPJON->GetBitState();
                 U64 center = mPJON->GetSampleNumber() + half_samples_per_bit;
                 if (bit == BIT_LOW) {
@@ -146,12 +146,12 @@ void PJONAnalyzer::WorkerThread()
                     f.mFlags = 0;
                     f.mStartingSampleInclusive = sync_sample_start;
                     f.mEndingSampleInclusive = mPJON->GetSampleNumber();
-                    f.mType = PJONFrameType::Sync;
+                    f.mType = Sync;
                     //fprintf(stderr, "%s\n", PJONPacketState::asDisplayString(packet_state.asDisplayFlag()));
                     f.mFlags = packet_state.asDisplayFlag();
                     mResults->AddFrame(f);
 
-                    current_state = PJONState::DataExpected;
+                    current_state = DataExpected;
                 } else {
                     // unexpected 1
                     U64 errorMarkerPos = sync_sample_start + (mPJON->GetSampleNumber() - sync_sample_start) / 2;
@@ -163,11 +163,11 @@ void PJONAnalyzer::WorkerThread()
                     f.mFlags = DISPLAY_AS_ERROR_FLAG;
                     f.mStartingSampleInclusive = sync_sample_start;
                     f.mEndingSampleInclusive = mPJON->GetSampleNumber();
-                    f.mType = PJONFrameType::Error;
+                    f.mType = Error;
                     mResults->AddFrame(f);
 
                     packet_state.reset();
-                    current_state = PJONState::Unknown;
+                    current_state = UnknownState;
 
                     mPJON->Advance(1);
                     mResults->CancelPacketAndStartNewPacket();
@@ -175,7 +175,7 @@ void PJONAnalyzer::WorkerThread()
                 break;
 
             }
-            case PJONState::DataExpected: {
+            case DataExpected: {
                 if (bits_read_count == 0) {
                     data_builder.Reset(&data, AnalyzerEnums::LsbFirst, 8);
                     data_sample_start = mPJON->GetSampleNumber();
@@ -206,7 +206,7 @@ void PJONAnalyzer::WorkerThread()
                     f.mStartingSampleInclusive = data_sample_start;
                     f.mEndingSampleInclusive = data_sample_end;
                     f.mFlags = packet_state.asDisplayFlag();
-                    f.mType = PJONFrameType::Data;
+                    f.mType = Data;
                     f.mData1 = data;
                     mResults->AddFrame(f);
 
@@ -215,12 +215,12 @@ void PJONAnalyzer::WorkerThread()
                     mResults->CommitPacketAndStartNewPacket();
 
                     switch (packet_state.current()) {
-                        case PJONPacketState::Packet::Length: {
+                        case PJONPacketState::Packet_Length: {
                             payload_bytes_to_come = data - PJONPacketState::PJON_PACKET_OVERHEAD;
                             break;
                         }
 
-                        case PJONPacketState::Packet::Payload: {
+                        case PJONPacketState::Packet_Payload: {
                             payload_bytes_to_come--;
                             break;
                         }
@@ -233,7 +233,7 @@ void PJONAnalyzer::WorkerThread()
                             break;
                         }*/
 
-                        case PJONPacketState::Packet::AckNack: {
+                        case PJONPacketState::Packet_AckNack: {
                             mResults->AddMarker(mPJON->GetSampleNumber(), AnalyzerResults::Stop, mSettings->mInputChannel);
                             mPJON->AdvanceToNextEdge();
                             break;
@@ -244,35 +244,35 @@ void PJONAnalyzer::WorkerThread()
                         }
                     }
 
-                    if (PJONPacketState::Packet::Payload == packet_state.current()) {
+                    if (PJONPacketState::Packet_Payload == packet_state.current()) {
                         if (payload_bytes_to_come == 0) {
                             // we have consumed all of the payload, transition and reset state
                             packet_state.next();
                             payload_bytes_to_come = 1;
-                            current_state = PJONState::Unknown;
+                            current_state = UnknownState;
                         } else {
                             // keep consuming the multi-byte payload
-                            current_state = PJONState::SyncExpected;
+                            current_state = SyncExpected;
                         }
-                    } else if (PJONPacketState::Packet::Checksum == packet_state.current()) {
+                    } else if (PJONPacketState::Packet_Checksum == packet_state.current()) {
                         packet_state.next();
                         // correct some protocol jitter found under load testing, don't seek & guess
-                        current_state = PJONState::SyncExpected;
+                        current_state = SyncExpected;
                     } else {
                         // this is not a payload sequence, normal transition
                         packet_state.next();
-                        current_state = PJONState::Unknown;
+                        current_state = UnknownState;
                     }
 
                 } else {
-                    current_state = PJONState::DataExpected;
+                    current_state = DataExpected;
                 }
                 break;
 
             }
             default: {
                 // should never fall through here, but let's future-proof
-                current_state = PJONState::Unknown;
+                current_state = UnknownState;
                 mPJON->AdvanceToNextEdge();
             }
         }
@@ -290,7 +290,7 @@ bool PJONAnalyzer::NeedsRerun() {
 
     U64 shortest_pulse = mPJON->GetMinimumPulseWidthSoFar();
 
-    fprintf( stderr, "Shortest pulse: %llu\n", shortest_pulse );
+//    fprintf( stderr, "Shortest pulse: %llu\n", shortest_pulse );
 
     if ( shortest_pulse == 0 )
     {
@@ -314,7 +314,7 @@ bool PJONAnalyzer::NeedsRerun() {
         return false;
     }
 
-    fprintf( stderr, "Computed bit rate: %u\n", computed_bit_rate );
+//    fprintf( stderr, "Computed bit rate: %u\n", computed_bit_rate );
 
     U32 specified_bit_rate = mSettings->mBitRate;
     

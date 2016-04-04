@@ -7,12 +7,12 @@ public:
     PJONPacketState();
     ~PJONPacketState();
  
-    enum class Packet {
-        DeviceId,
-        Length,
-        Payload,
-        Checksum,
-        AckNack
+    enum Packet {
+        Packet_DeviceId = 1,
+        Packet_Length = 2,
+        Packet_Payload = 3,
+        Packet_Checksum = 4,
+        Packet_AckNack = 5
     };
     
     Packet next();
@@ -43,11 +43,11 @@ private:
     static const short enum_element_count = 5;
     
     Packet pjon_packet_types[enum_element_count] = {
-        Packet::DeviceId,
-        Packet::Length,
-        Packet::Payload,
-        Packet::Checksum,
-        Packet::AckNack
+        Packet_DeviceId,
+        Packet_Length,
+        Packet_Payload,
+        Packet_Checksum,
+        Packet_AckNack
     };
     
     // vars/constants

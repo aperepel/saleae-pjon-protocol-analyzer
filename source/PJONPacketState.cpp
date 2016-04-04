@@ -45,23 +45,23 @@ char* PJONPacketState::asDisplayString(short flag) {
     
     Packet packet = p.current();
     switch (packet) {
-        case PJONPacketState::Packet::DeviceId:
+        case Packet_DeviceId:
             return (char*) "Device ID";
             break;
             
-        case PJONPacketState::Packet::Length:
+        case Packet_Length:
             return (char*) "Length";
             break;
             
-        case PJONPacketState::Packet::Payload:
+        case Packet_Payload:
             return (char*) "Payload";
             break;
             
-        case PJONPacketState::Packet::Checksum:
+        case Packet_Checksum:
             return (char*) "Checksum";
             break;
             
-        case PJONPacketState::Packet::AckNack:
+        case Packet_AckNack:
             return (char*) "AckNack";
             break;
             
@@ -74,23 +74,23 @@ char* PJONPacketState::asDisplayString(short flag) {
 short PJONPacketState::asDisplayFlag() {
     Packet current = this->current();
     switch (current) {
-        case PJONPacketState::Packet::DeviceId:
+        case Packet_DeviceId:
             return FLAG_DEVICE_ID;
             break;
 
-        case PJONPacketState::Packet::Length:
+        case Packet_Length:
             return FLAG_LENGTH;
             break;
 
-        case PJONPacketState::Packet::Payload:
+        case Packet_Payload:
             return FLAG_PAYLOAD;
             break;
 
-        case PJONPacketState::Packet::Checksum:
+        case Packet_Checksum:
             return FLAG_CHECKSUM;
             break;
             
-        case PJONPacketState::Packet::AckNack:
+        case Packet_AckNack:
             return FLAG_ACK_NACK;
             break;
 
