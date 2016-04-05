@@ -1,6 +1,13 @@
 #include "PJONPacketState.h"
 //#include <stdio.h>
 
+const PJONPacketState::Packet PJONPacketState::pjon_packet_types [5] = {
+	Packet_DeviceId,
+	Packet_Length,
+	Packet_Payload,
+	Packet_Checksum,
+	Packet_AckNack
+};
 PJONPacketState::PJONPacketState() {
     
 }

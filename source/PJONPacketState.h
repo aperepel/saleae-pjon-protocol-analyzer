@@ -38,17 +38,11 @@ public:
     static const short PJON_PACKET_OVERHEAD = 3;
     
 private:
-    
+
     // ugh, c++ enums, i'm looking at you :[
     static const short enum_element_count = 5;
     
-    Packet pjon_packet_types[enum_element_count] = {
-        Packet_DeviceId,
-        Packet_Length,
-        Packet_Payload,
-        Packet_Checksum,
-        Packet_AckNack
-    };
+	static const Packet pjon_packet_types[enum_element_count];
     
     // vars/constants
     short current_index = 0;
