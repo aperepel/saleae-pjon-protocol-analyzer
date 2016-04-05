@@ -6,6 +6,7 @@
 ![Overview Screenshot](/assets/screenshot_overview.png)
 
 # Quickstart
+- Download a plugin binary for your platform from the Releases tab above.
 - Tell Logic to load the protocol analyzer plugin. Full details available in the Analyzer SDK docs PDF, but here's a quickie:
  - Launch the Logic software.
  - Select `Options->Preferences`
