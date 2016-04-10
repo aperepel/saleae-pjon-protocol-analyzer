@@ -44,6 +44,7 @@ void PJONAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         case Error: {
             AddResultString("e");
             AddResultString("Error");
+            break;
         }
             
         default: {

@@ -159,7 +159,6 @@ void PJONAnalyzer::WorkerThread()
 //                    mPJON->Advance(samples_per_bit); // TODO advance with tolerance check
 
                     Frame f;
-                    // TODO still display the packet type?
                     f.mFlags = DISPLAY_AS_ERROR_FLAG;
                     f.mStartingSampleInclusive = sync_sample_start;
                     f.mEndingSampleInclusive = mPJON->GetSampleNumber();
